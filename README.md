@@ -30,6 +30,10 @@ Launch Template user data: [`scripts/user-data.sh`](scripts/user-data.sh)
 
 > What are the benefits of this setup? This design is very useful and popular because it gives us security, reliability, scalability, and simpler operations.
 
+  > For example, our instances are not publicly reachable, which greatly reduces our attack surface. Additionally, we only have one entry point, so we can really harden, monitor, and rate-limit from one place. (FYI, in this project, I am basing it on port 80, but if we want to use 443 for added security, we can easily add TLS at the ALB. On top of that, we can also add WAF with ALB,  which could be done very quickly.)
+
+>**Bottom Line:** This design solves multiple angles, gives us a way to enhance security, autoscale based on traffic, have a multi-AZ web tier with one public doorway, room to grow, self-healing instances while keeping the cost down and operational complexity in check!!
+
 ![Load Balancer](screenshots/load_balancer.jpeg)
 
 
