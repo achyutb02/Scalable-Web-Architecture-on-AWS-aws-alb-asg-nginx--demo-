@@ -24,7 +24,7 @@ Launch Template user data: [`scripts/user-data.sh`](scripts/user-data.sh)
 - Inbound: `HTTP (80)` **from security group** `alb-web` (select SG as the source, *not* a CIDR)
 - Outbound: allow all (default)
 
-![screenshots](load_balancer)
+![screenshots](load_balancer.jpeg)
 
 > Why this setup? The goal is to make sure the traffic is only allowed from `alb-web`, which lets the internet send traffic via HTTP:80. The 'alb-web' then forwards the request to one of the instances. This instance responds back through the ALB to the user. Therefore, the idea being **User --> ALB --> EC2**
 
