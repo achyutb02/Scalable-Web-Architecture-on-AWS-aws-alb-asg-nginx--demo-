@@ -12,8 +12,47 @@
 ## Launch template user data (Nginx)
 Launch Template user data: [`scripts/user-data.sh`](scripts/user-data.sh)
 
+```bash
+#!/bin/bash
+set -euxo pipefail
+
+# --- Install web server (AL2023 uses dnf) ---
+dnf -y update
+dnf -y install nginx
+
+# --- IMDS helper (uses v2 token if available) ---
+TOKEN="$(curl -sS -X PUT 'http://169.254.169.254/latest/api/token' \
+  -H 'X-aws-ec2-metadata-token-ttl-seconds: 21600' || true)"
+
+md() {
+  local path="$1"
+  if [ -n "$TOKEN" ]; then
+    curl -sS -H "X-aws-ec2-metadata-token: $TOKEN" "http://169.254.169.254${path}"
+  else
+    curl -sS "http://169.254.169.254${path}"
+  fi
+}
+
+INSTANCE_ID="$(md /latest/meta-data/instance-id)"
+AZ="$(md /latest/meta-data/placement/availability-zone)"
+HOSTNAME_FQDN="$(hostname -f || hostname)"
+
+# --- Simple page that proves which instance served you ---
+cat > /usr/share/nginx/html/index.html <<EOF
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>ASG Demo</title></head>
+<body style="font-family:system-ui;max-width:720px;margin:40px auto;">
+<h1>Hello from $INSTANCE_ID</h1>
+<p>Hostname: $HOSTNAME_FQDN<br>AZ: $AZ</p>
+</body>
+</html>
+EOF
+
+systemctl enable --now nginx
 
 
+```
 ### 1) Create Security Groups
 
 **a) ALB security group – `alb-web`**
@@ -34,6 +73,7 @@ Launch Template user data: [`scripts/user-data.sh`](scripts/user-data.sh)
 
 >**Bottom Line:** This design solves multiple angles, gives us a way to enhance security, autoscale based on traffic, have a multi-AZ web tier with one public doorway, room to grow, self-healing instances while keeping the cost down and operational complexity in check!!
 
+![Load Balancer](screenshots/load_balancer.jpeg)
 
 
 
@@ -101,3 +141,18 @@ brew install hey
 export URL="http://<your-alb-dns-name>"
 hey -z 3m -q 12 "$URL/"     # ~3 minutes of traffic
 
+```
+On Windows:
+```bash
+# 1) Install Scoop (once)
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+iwr -useb get.scoop.sh | iex
+
+# 2) Install hey
+scoop install hey
+
+# 3) Run your test
+$URL = "http://<your-alb-dns-name>"
+hey -z 3m -q 12 "$URL/"
+
+```
