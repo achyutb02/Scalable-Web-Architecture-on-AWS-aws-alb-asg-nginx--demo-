@@ -34,7 +34,7 @@ Launch Template user data: [`scripts/user-data.sh`](scripts/user-data.sh)
 
 >**Bottom Line:** This design solves multiple angles, gives us a way to enhance security, autoscale based on traffic, have a multi-AZ web tier with one public doorway, room to grow, self-healing instances while keeping the cost down and operational complexity in check!!
 
-![Load Balancer](screenshots/load_balancer.jpeg)
+
 
 
 ---
@@ -49,7 +49,8 @@ Launch Template user data: [`scripts/user-data.sh`](scripts/user-data.sh)
 > Now for the fun part. We want to make sure our instances are healthy, so we keep sending them the traffic. Imagine a scenario where you send important information, and you don't hear a reply back. That's not pleasant, right? Well, to solve this issue, we want to make sure our ALB (Application Load Balancer) will keep pinging each instance at `http://<instance>:/` if we get 200 OK enough times in a row, then the instance is deemed healthy, so our ALB can send traffic there. If it is deemed Unhealthy, then it will stop sending it there. Keep reading this post to find out how we replace the unhealthy instance.
 >
 > _(Defaults like interval ~15s and healthy/unhealthy thresholds are fine for this demo.)_
-![health check](screenshots/health check.png)
+
+![Health Check](screenshots/health%20check.png)
 
 ---
 
